@@ -26,6 +26,7 @@ public class main1 extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent=new Intent(main1.this,MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         doctor.setOnClickListener(new View.OnClickListener() {
@@ -33,6 +34,7 @@ public class main1 extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent=new Intent(main1.this, Doctor_register.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

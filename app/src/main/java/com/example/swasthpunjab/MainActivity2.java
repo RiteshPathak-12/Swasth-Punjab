@@ -42,6 +42,7 @@ public class MainActivity2 extends AppCompatActivity {
 
                 Intent intent=new Intent(MainActivity2.this, Dashboard.class);
                 startActivity(intent);
+                finish();
             }
         });
 
