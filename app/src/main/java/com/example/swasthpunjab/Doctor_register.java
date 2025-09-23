@@ -2,6 +2,7 @@ package com.example.swasthpunjab;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 
 public class Doctor_register extends AppCompatActivity {
     EditText nameInput,emailInput,passwordInput,licenseInput,specialtyInput,experienceInput;
@@ -64,6 +71,40 @@ public class Doctor_register extends AppCompatActivity {
                 db.close();
             }
         });
+
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String targetLang = prefs.getString("language", "en");
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLang))
+                .build();
+
+        Translator translator = Translation.getClient(options);
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    translator.translate(nameInput.getText().toString())
+                            .addOnSuccessListener(translated -> nameInput.setText(translated));
+
+                    translator.translate(emailInput.getText().toString())
+                            .addOnSuccessListener(translated -> emailInput.setText(translated));
+                    translator.translate(passwordInput.getText().toString())
+                            .addOnSuccessListener(translated -> passwordInput.setText(translated));
+                    translator.translate(licenseInput.getText().toString())
+                            .addOnSuccessListener(translated -> licenseInput.setText(translated));
+                    translator.translate(specialtyInput.getText().toString())
+                            .addOnSuccessListener(translated -> specialtyInput.setText(translated));
+                    translator.translate(experienceInput.getText().toString())
+                            .addOnSuccessListener(translated -> experienceInput.setText(translated));
+                    translator.translate(registerButton.getText().toString())
+                            .addOnSuccessListener(translated -> registerButton.setText(translated));
+                    translator.translate(all_doctor.getText().toString())
+                            .addOnSuccessListener(translated -> all_doctor.setText(translated));
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Translation failed", Toast.LENGTH_SHORT).show();
+                });
 
         all_doctor.setOnClickListener(new View.OnClickListener() {
             @Override

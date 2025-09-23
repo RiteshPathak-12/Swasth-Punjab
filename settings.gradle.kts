@@ -31,4 +31,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Swasth Punjab"
 include(":app")
- 

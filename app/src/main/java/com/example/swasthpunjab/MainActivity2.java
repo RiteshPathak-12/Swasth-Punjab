@@ -1,6 +1,7 @@
 package com.example.swasthpunjab;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -45,6 +52,29 @@ public class MainActivity2 extends AppCompatActivity {
                 finish();
             }
         });
+
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String targetLang = prefs.getString("language", "en");
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLang))
+                .build();
+
+        Translator translator = Translation.getClient(options);
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    translator.translate(otp.getText().toString())
+                            .addOnSuccessListener(translated -> otp.setText(translated));
+
+                    translator.translate(Login.getText().toString())
+                            .addOnSuccessListener(translated -> Login.setText(translated));
+                })
+                .addOnFailureListener(e -> {
+                    //Toast.makeText(this, "Translation failed", Toast.LENGTH_SHORT).show();
+                });
+
 
     }
 }

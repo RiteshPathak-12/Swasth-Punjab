@@ -1,17 +1,25 @@
 package com.example.swasthpunjab;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
+
 import androidx.appcompat.app.AppCompatActivity;
-import java.util.Locale;
-import android.content.Intent;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
-import android.speech.RecognitionListener;
+
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ChatbotActivity extends AppCompatActivity {
 
@@ -19,19 +27,18 @@ public class ChatbotActivity extends AppCompatActivity {
     Spinner genderSpinner, durationSpinner;
     CheckBox feverBox, coughBox, headacheBox, stomachBox;
     SeekBar severityBar;
-    EditText ageInput, locationInput, medicationInput;
-    Button submitButton,Consult_a_Doctor;
+    EditText ageInput, locationInput, medicationInput, symptomInput;
+    Button submitButton, Consult_a_Doctor, micButton;
     TextView resultText;
-    Button micButton;
     SpeechRecognizer speechRecognizer;
     Intent speechIntent;
-    EditText symptomInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatbot);
 
+        // Initialize views
         ageInput = findViewById(R.id.ageInput);
         genderSpinner = findViewById(R.id.genderSpinner);
         durationSpinner = findViewById(R.id.durationSpinner);
@@ -45,26 +52,48 @@ public class ChatbotActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.submitButton);
         resultText = findViewById(R.id.resultText);
         symptomInput = findViewById(R.id.symptomInput);
-        Consult_a_Doctor=findViewById(R.id.Consult_a_Doctor);
-
+        Consult_a_Doctor = findViewById(R.id.Consult_a_Doctor);
         micButton = findViewById(R.id.micButton);
 
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN"); // You can switch to "hi-IN" or "pa-IN"
+        // Load saved language
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String targetLang = prefs.getString("language", "en");
 
-        micButton.setOnClickListener(v -> {
-            speechRecognizer.startListening(speechIntent);
-        });
-        Consult_a_Doctor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://meet.jit.si/SwasthPunjabConsultRoom"));
-                startActivity(intent);
+        // Setup translator
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLang))
+                .build();
+
+        Translator translator = Translation.getClient(options);
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    View root = findViewById(android.R.id.content);
+                    translateViewText(root, translator);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Translation failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+
+        // Text-to-Speech setup
+        tts = new TextToSpeech(this, status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                tts.setLanguage(new Locale(targetLang));
             }
         });
-        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+
+        // Speech recognition setup
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechIntent = new Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechIntent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechIntent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, "en-IN");
+
+        micButton.setOnClickListener(v -> speechRecognizer.startListening(speechIntent));
+
+        speechRecognizer.setRecognitionListener(new android.speech.RecognitionListener() {
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -75,7 +104,6 @@ public class ChatbotActivity extends AppCompatActivity {
                 }
             }
 
-            // Optional: Handle other callbacks
             public void onReadyForSpeech(Bundle params) {}
             public void onBeginningOfSpeech() {}
             public void onRmsChanged(float rmsdB) {}
@@ -86,17 +114,45 @@ public class ChatbotActivity extends AppCompatActivity {
             public void onEvent(int eventType, Bundle params) {}
         });
 
-        tts = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS) {
-                tts.setLanguage(Locale.ENGLISH); // You can switch to Hindi or Punjabi
-            }
-        });
-
+        // Submit button logic
         submitButton.setOnClickListener(v -> {
             String advice = getTriageAdvice();
             resultText.setText(advice);
             tts.speak(advice, TextToSpeech.QUEUE_FLUSH, null, null);
         });
+
+        // Doctor consult button
+        Consult_a_Doctor.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://meet.jit.si/SwasthPunjabConsultRoom"));
+            startActivity(intent);
+        });
+    }
+
+    private void translateViewText(View view, Translator translator) {
+        if (view instanceof TextView) {
+            TextView tv = (TextView) view;
+            translator.translate(tv.getText().toString())
+                    .addOnSuccessListener(tv::setText);
+        } else if (view instanceof Button) {
+            Button btn = (Button) view;
+            translator.translate(btn.getText().toString())
+                    .addOnSuccessListener(btn::setText);
+        } else if (view instanceof CheckBox) {
+            CheckBox cb = (CheckBox) view;
+            translator.translate(cb.getText().toString())
+                    .addOnSuccessListener(cb::setText);
+        } else if (view instanceof EditText) {
+            EditText et = (EditText) view;
+            if (et.getHint() != null) {
+                translator.translate(et.getHint().toString())
+                        .addOnSuccessListener(et::setHint);
+            }
+        } else if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                translateViewText(group.getChildAt(i), translator);
+            }
+        }
     }
 
     private String getTriageAdvice() {

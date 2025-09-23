@@ -1,10 +1,12 @@
 package com.example.swasthpunjab;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -12,6 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText phone_number;
     Button SendOTP;
+    TextView LoginTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         phone_number = findViewById(R.id.phone_number);
         SendOTP = findViewById(R.id.SendOTP);
-
+        LoginTitle=findViewById(R.id.LoginTitle);
         SendOTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,11 +97,37 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).start();
 
+
                 Intent intent = new Intent(MainActivity.this, MainActivity2.class);
                 intent.putExtra("otp", otp);
                 startActivity(intent);
                 finish();
             }
         });
+
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String targetLang = prefs.getString("language", "en");
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLang))
+                .build();
+
+        Translator translator = Translation.getClient(options);
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    translator.translate(phone_number.getText().toString())
+                            .addOnSuccessListener(translated -> phone_number.setText(translated));
+
+                    translator.translate(LoginTitle.getText().toString())
+                            .addOnSuccessListener(translated -> LoginTitle.setText(translated));
+                    translator.translate(SendOTP.getText().toString())
+                            .addOnSuccessListener(translated -> SendOTP.setText(translated));
+                })
+                .addOnFailureListener(e -> {
+                    //Toast.makeText(this, "Translation failed", Toast.LENGTH_SHORT).show();
+                });
+
     }
 }

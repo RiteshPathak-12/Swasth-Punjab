@@ -22,7 +22,7 @@ public class opening extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent=new Intent(opening.this, main1.class);
+                Intent intent=new Intent(opening.this,MainActivity0.class);
                 startActivity(intent);
                 finish();
             }
