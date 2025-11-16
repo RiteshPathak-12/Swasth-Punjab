@@ -3,12 +3,93 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".DashboardFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#2196F3"
+                android:id="@+id/toolbar"
+                app:titleTextColor="@android:color/white">
+
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+        <LinearLayout
+            android:layout_width="350dp"
+            android:layout_height="200dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="60dp"
+            android:background="#FCCFE4C5">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:src="@drawable/doctor_and_contact"
+                android:id="@+id/doctor_photo"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Consult Now"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:id="@+id/Consult_Now"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="350dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginLeft="30dp"
+            android:orientation="vertical"
+            android:background="#FCCFE4C5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Consultations"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="150dp"
+                android:id="@+id/totalConsultation"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_marginLeft="300dp"
+                android:layout_marginTop="20dp"
+                android:id="@+id/Consultation"/>
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Medical Shop near me"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="40dp"
+            android:id="@+id/medical_shop"/>
+
+
+
+    </LinearLayout>
 
 </FrameLayout>

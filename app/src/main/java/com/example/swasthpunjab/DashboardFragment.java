@@ -1,42 +1,48 @@
 package com.example.swasthpunjab;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link DashboardFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
+
 public class DashboardFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private ImageView doctor_photo;
+    private Toolbar toolbar;
+    private TextView Consultation, totalConsultation;
+    private Button Consult_Now, medical_shop;
+
+    // Keep a reference so we can close it to avoid leaks
+    private Translator translator;
+
+    // Args (unused here, but kept if you need them)
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    public DashboardFragment() {
-        // Required empty public constructor
-    }
+    public DashboardFragment() { }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment DashboardFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static DashboardFragment newInstance(String param1, String param2) {
         DashboardFragment fragment = new DashboardFragment();
         Bundle args = new Bundle();
@@ -53,12 +59,98 @@ public class DashboardFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        // Do NOT touch views here.
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dashboard, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // ---- Bind views from the inflated layout ----
+        doctor_photo       = view.findViewById(R.id.doctor_photo);
+        Consultation       = view.findViewById(R.id.Consultation);
+        totalConsultation  = view.findViewById(R.id.totalConsultation);
+        Consult_Now        = view.findViewById(R.id.Consult_Now);
+        medical_shop       = view.findViewById(R.id.medical_shop);
+        toolbar            = view.findViewById(R.id.toolbar);
+
+        // ---- Toolbar setup (Fragment -> Activity’s ActionBar) ----
+        if (toolbar != null) {
+            AppCompatActivity activity = (AppCompatActivity) requireActivity();
+            activity.setSupportActionBar(toolbar);
+            if (activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                activity.getSupportActionBar().setTitle(""); // optional
+            }
+            toolbar.setSubtitle("toolbar");
+            setHasOptionsMenu(true); // if you plan to inflate menu
+        }
+
+        // ---- Click listeners ----
+        Consult_Now.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ChatbotActivity.class))
+        );
+
+        medical_shop.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), Medical_Shop_list.class))
+        );
+
+        // ---- ML Kit Translation setup ----
+        SharedPreferences prefs = requireContext().getSharedPreferences("settings", MODE_PRIVATE);
+        String targetLangTag = prefs.getString("language", "en");
+
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLangTag))
+                .build();
+
+        translator = Translation.getClient(options);
+        DownloadConditions conditions = new DownloadConditions.Builder()
+                .requireWifi()
+                .build();
+
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    // Translate current button/text labels
+                    translator.translate(Consult_Now.getText().toString())
+                            .addOnSuccessListener(translated -> Consult_Now.setText(translated));
+
+                    translator.translate(Consultation.getText().toString())
+                            .addOnSuccessListener(translated -> Consultation.setText(translated));
+
+                    translator.translate(medical_shop.getText().toString())
+                            .addOnSuccessListener(translated -> medical_shop.setText(translated));
+
+                    translator.translate(totalConsultation.getText().toString())
+                            .addOnSuccessListener(translated -> totalConsultation.setText(translated));
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Translation failed", Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Avoid memory leaks from ML Kit translator
+        if (translator != null) {
+            translator.close();
+            translator = null;
+        }
+        // Null out view refs (optional good practice)
+        doctor_photo = null;
+        toolbar = null;
+        Consultation = null;
+        totalConsultation = null;
+        Consult_Now = null;
+        medical_shop = null;
     }
 }

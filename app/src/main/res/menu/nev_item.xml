@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/dashboard"
+        android:icon="@drawable/baseline_dashboard_24"
+        android:title="Deshboard"/>
+    <item
+        android:id="@+id/Consultation"
+        android:icon="@drawable/outline_engineering_24"
+        android:title="Consultation"/>
+    <item
+        android:id="@+id/more"
+        android:icon="@drawable/outline_more_horiz_24"
+        android:title="More"/>
+
+
 </menu>
