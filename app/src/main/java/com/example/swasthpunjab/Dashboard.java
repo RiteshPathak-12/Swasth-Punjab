@@ -48,14 +48,14 @@ public class Dashboard extends AppCompatActivity {
 
                 int id = item.getItemId();
                 if (id == R.id.dashboard) {
-                    loadFrag(new DashboardFragment(),true);
+                    loadFrag(new DashboardFragment());
 
                 } else if (id == R.id.Consultation) {
 
-                    loadFrag(new ConsultationFragment(),false);
+                    loadFrag(new ConsultationFragment());
 
                 } else{
-                    loadFrag(new MoreFragment(),false);
+                    loadFrag(new MoreFragment());
                 }
                 return true;
             }
@@ -63,13 +63,10 @@ public class Dashboard extends AppCompatActivity {
         btnView.setSelectedItemId(R.id.dashboard);
     }
 
-    public void loadFrag(Fragment fragment,boolean flag){
+    public void loadFrag(Fragment fragment){
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        if(flag)
-            ft.add(R.id.container, fragment);
-        else
-            ft.replace(R.id.container, fragment);
+        ft.replace(R.id.container, fragment);
         ft.commit();
     }
 }

@@ -63,7 +63,8 @@ public class main1 extends AppCompatActivity {
         doctor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(main1.this, Doctor_register.class);
+                // Go to Login Page First
+                Intent intent=new Intent(main1.this, DoctorLoginActivity.class);
                 startActivity(intent);
                 finish();
             }

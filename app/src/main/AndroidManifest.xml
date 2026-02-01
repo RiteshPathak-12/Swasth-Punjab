@@ -3,15 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-
-
     <application
         android:allowBackup="true"
+        tools:replace="android:allowBackup,android:label"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -20,6 +20,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SwasthPunjab"
         tools:targetApi="31">
+        <activity
+            android:name=".Activity_appointment_booking"
+            android:exported="false" />
+        <activity
+            android:name=".VideoCallActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".WaitingRoomActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DoctorDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DoctorLoginActivity"
+            android:exported="false" 
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".PrescriptionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".MyAppointmentsActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity0"
             android:exported="false" />

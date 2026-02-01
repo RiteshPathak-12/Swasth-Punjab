@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "972504659390",
+    "project_id": "swasthpunjab",
+    "storage_bucket": "swasthpunjab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972504659390:android:03a3b654473c9c96afb5ef",
+        "android_client_info": {
+          "package_name": "com.example.swasthpunjab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRGCO-GAlAjOUFXdiiXXF8YkXFlEDt4S0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

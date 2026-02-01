@@ -114,18 +114,69 @@ public class ChatbotActivity extends AppCompatActivity {
             public void onEvent(int eventType, Bundle params) {}
         });
 
-        // Submit button logic
+        // Check symptoms logic
         submitButton.setOnClickListener(v -> {
             String advice = getTriageAdvice();
             resultText.setText(advice);
             tts.speak(advice, TextToSpeech.QUEUE_FLUSH, null, null);
         });
 
+
         // Doctor consult button
         Consult_a_Doctor.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://meet.jit.si/SwasthPunjabConsultRoom"));
+            String summary = generateSymptomSummary();
+            Intent intent = new Intent(ChatbotActivity.this, DoctorListActivity.class);
+            intent.putExtra("SYMPTOM_SUMMARY", summary);
             startActivity(intent);
         });
+    }
+
+    private String generateSymptomSummary() {
+        StringBuilder sb = new StringBuilder();
+
+        // Demographics
+        String age = ageInput.getText().toString().trim();
+        String gender = "";
+        if (genderSpinner.getSelectedItem() != null) {
+            gender = genderSpinner.getSelectedItem().toString();
+        }
+
+        if (!age.isEmpty()) sb.append("Patient: ").append(age).append(" yrs, ").append(gender).append("\n");
+
+        // Symptoms
+        ArrayList<String> symptoms = new ArrayList<>();
+        if (feverBox.isChecked()) symptoms.add("Fever");
+        if (coughBox.isChecked()) symptoms.add("Cough");
+        if (headacheBox.isChecked()) symptoms.add("Headache");
+        if (stomachBox.isChecked()) symptoms.add("Stomach Pain");
+
+        String manuallyTyped = symptomInput.getText().toString().trim();
+        if (!manuallyTyped.isEmpty()) symptoms.add(manuallyTyped);
+
+        if (!symptoms.isEmpty()) {
+            sb.append("Symptoms: ").append(String.join(", ", symptoms)).append("\n");
+        }
+
+        // Details
+        sb.append("Severity: ").append(severityBar.getProgress()).append("/10\n");
+
+        if (durationSpinner.getSelectedItem() != null) {
+            sb.append("Duration: ").append(durationSpinner.getSelectedItem().toString()).append("\n");
+        }
+
+        String loc = locationInput.getText().toString().trim();
+        if (!loc.isEmpty()) sb.append("Location: ").append(loc).append("\n");
+
+        String meds = medicationInput.getText().toString().trim();
+        if (!meds.isEmpty()) sb.append("Current Meds: ").append(meds).append("\n");
+
+        // AI Advice generated
+        String advice = resultText.getText().toString();
+        if (!advice.isEmpty()) {
+            sb.append("AI Triage Note: ").append(advice);
+        }
+
+        return sb.toString();
     }
 
     private void translateViewText(View view, Translator translator) {

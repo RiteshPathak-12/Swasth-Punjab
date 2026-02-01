@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FAFAFA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Prescription"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#1A237E"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvPrescriptionPatient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Patient: Unknown"
+            android:textSize="18sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Diagnosis Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Diagnosis"
+            android:textStyle="bold"
+            android:textColor="#333333"/>
+            
+        <EditText
+            android:id="@+id/etDiagnosis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="e.g. Acute Viral Fever"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Medicines Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medications (Rx)"
+            android:textStyle="bold"
+            android:textColor="#333333"/>
+
+        <EditText
+            android:id="@+id/etMedicines"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/rounded_border"
+            android:gravity="top|start"
+            android:hint="Name - Dosage - Frequency - Duration\n\n1. Paracetamol 650mg - 1-0-1 - 3 Days\n2. Cetirizine 10mg - 0-0-1 - 5 Days"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp"/>
+            
+        <!-- Follow Up -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Follow-up Date"
+            android:textStyle="bold"
+            android:textColor="#333333"/>
+            
+        <Button
+            android:id="@+id/btnFollowUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Date"
+            android:layout_marginBottom="32dp"
+            android:backgroundTint="#009688"/>
+
+        <!-- Actions -->
+        <Button
+            android:id="@+id/btnSavePrescription"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Digitally Sign &amp; Send"
+            android:textSize="18sp"
+            android:backgroundTint="#1A237E"
+            android:elevation="4dp"/>
+
+    </LinearLayout>
+</ScrollView>

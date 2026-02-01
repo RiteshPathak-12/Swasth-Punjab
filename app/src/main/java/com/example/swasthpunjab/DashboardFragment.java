@@ -138,6 +138,27 @@ public class DashboardFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateCount();
+    }
+
+    private void updateCount() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("user_prefs", MODE_PRIVATE);
+        String email = prefs.getString("patient_email", "");
+
+        if (!email.isEmpty()) {
+            MyDBHelper dbHelper = new MyDBHelper(requireContext());
+            int count = dbHelper.getAppointmentCount(email);
+            // 'Consultation' is the TextView that holds the number "0" (confirmed via XML id)
+            // 'totalConsultation' is the header/label "Total Consultations"
+            Consultation.setText(String.valueOf(count));
+        } else {
+            Consultation.setText("0");
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         // Avoid memory leaks from ML Kit translator

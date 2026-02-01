@@ -1,6 +1,7 @@
 package com.example.swasthpunjab;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
@@ -22,8 +23,19 @@ public class opening extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent=new Intent(opening.this,MainActivity0.class);
-                startActivity(intent);
+                // Check if user is already logged in
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                String email = prefs.getString("patient_email", null);
+
+                if (email != null && !email.isEmpty()) {
+                    // User is already logged in, skip to Dashboard
+                    Intent intent = new Intent(opening.this, Dashboard.class);
+                    startActivity(intent);
+                } else {
+                    // Start fresh
+                    Intent intent = new Intent(opening.this, MainActivity0.class);
+                    startActivity(intent);
+                }
                 finish();
             }
         },3000);
